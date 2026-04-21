@@ -137,3 +137,14 @@ assignment : ID '=' INT ';'
 
 ## 🚀 Conclusion
 SolvA demonstrates how compiler design principles can be extended to constraint validation problems. By embedding logic into syntax analysis, it ensures correctness, reduces complexity, and provides immediate feedback.
+
+
+
+1. The Flex Stage (flex lexer.l)
+Flex is a "Source-to-Source" translator. It reads your Regular Expressions and builds a DFA (Deterministic Finite Automaton).
+
+Internally: It creates a massive, hard-coded integer table (a state-transition table).
+
+The Result: It spits out a file called lex.yy.c. This file is pure C code, but it's "ugly" code—it’s designed for speed, not for humans to read. It contains a function called yylex().
+
+ ![alt text](image-1.png)
