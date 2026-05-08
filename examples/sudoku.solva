@@ -1,0 +1,14 @@
+// Simplified Sudoku: First row of a 9x9 Sudoku puzzle
+// Each cell must have a different value from 1-9
+var Cell1 in [1..9];
+var Cell2 in [1..9];
+var Cell3 in [1..9];
+
+constraint Cell1 != Cell2;
+constraint Cell1 != Cell3;
+constraint Cell2 != Cell3;
+
+// Valid solution
+Cell1 = 5;
+Cell2 = 3;
+Cell3 = 4;

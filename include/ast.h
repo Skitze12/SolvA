@@ -38,6 +38,27 @@ public:
 };
 
 
+// --- THE VARIABLE DECLARATION NODE ---
+// Represents a line like: var Sindh in [1..3];
+class VarDeclNode : public Node {
+private:
+    std::string varName;
+    int minVal;
+    int maxVal;
+
+public:
+    /*
+     * EXPECTS: The name of the variable and its domain bounds [minVal..maxVal].
+     */
+    VarDeclNode(std::string v, int min_val, int max_val);
+
+    /*
+     * RETURNS: A DOT string like: node_0 [label="Var: Sindh in [1..3]"];
+     */
+    std::string toDot() const override;
+};
+
+
 // --- THE CONSTRAINT NODE ---
 // Represents a line like: constraint Sindh != Punjab;
 class ConstraintNode : public Node {

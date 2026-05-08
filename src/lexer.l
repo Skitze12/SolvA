@@ -1,59 +1,45 @@
 %{
-/*Everything between %{%} are all the libraries*/
-
-#include <stdio.h>
-#include <stdlib.h>
-
-
-/* %% ... %% represents all the pattern -> actions are defined in this sections */
-/*Pattern or the regext expression maps to -> the action, right now its just print statements */
-/* [Pattern] {C Action code}
-
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+#include "parser.hpp"  // Include Bison-generated header for token types
 
 %}
 
 /* Tell Flex we are only reading one file at a time */
 %option noyywrap
-
-
-%%
-
-"//".* { printf("COMMENT\n"); /* Ignore single-line comments */ }
-[ \t\n\r]+              { /* Ignore spaces, tabs, and newlines */ }
-
-"var"                   { printf("TOKEN: KEYWORD_VAR\n"); }
-"in"                    { printf("TOKEN: KEYWORD_IN\n"); }
-"constraint"            { printf("TOKEN: KEYWORD_CONSTRAINT\n"); }
-
-"=="|"!="|">"|"<"       { printf("TOKEN: OPERATOR (%s)\n", yytext); }
-
-[a-zA-Z_][a-zA-Z0-9_]* { printf("TOKEN: ID (%s)\n", yytext); }
-[0-9]+                  { printf("TOKEN: INT (%s)\n", yytext); }
-
-"="|";"|"."             { printf("TOKEN: SYMBOL (%s)\n", yytext); }
-
-.                       { printf("LEXICAL ERROR: Unrecognized character '%s'\n", yytext); }
+%option yylineno
 
 %%
 
-/* 
- Temp main functoin for testing rn
-*/
-int main(int argc, char **argv) {
-    
-    if (argc > 1) {
-        FILE *file = fopen(argv[1], "r");
-        if (!file) {
-            printf("Error: Could not open %s\n", argv[1]);
-            return 1;
-        }
-        yyin = file; // Tells Flex to read from this file
-    } else {
-        printf("Reading from standard input (Type Ctrl+Z to stop):\n");
-    }
+"//".* { /* Ignore single-line comments */ }
+[ \t\r]+              { /* Ignore spaces and tabs */ }
+\n                    { /* Count lines */ }
 
-    //yylex() is the main function which looks at all of the above rules and creates the DFA in C in the file lex.yy.c 
+"var"                   { return KEYWORD_VAR; }
+"in"                    { return KEYWORD_IN; }
+"constraint"            { return KEYWORD_CONSTRAINT; }
 
-    yylex();
-    return 0;
+"=="                    { yylval.str_val = strdup(yytext); return OPERATOR; }
+"!="                    { yylval.str_val = strdup(yytext); return OPERATOR; }
+">"                     { yylval.str_val = strdup(yytext); return OPERATOR; }
+"<"                     { yylval.str_val = strdup(yytext); return OPERATOR; }
+">="                    { yylval.str_val = strdup(yytext); return OPERATOR; }
+"<="                    { yylval.str_val = strdup(yytext); return OPERATOR; }
+
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.str_val = strdup(yytext); return ID; }
+[0-9]+                  { yylval.int_val = atoi(yytext); return INT; }
+
+"="                     { return ASSIGN; }
+";"                     { return SEMICOLON; }
+"."                     { return '.'; }
+"["                     { return '['; }
+"]"                     { return ']'; }
+
+.                       { 
+    std::cerr << "LEXICAL ERROR at line " << yylineno << ": Unrecognized character '" << yytext << "'" << std::endl;
+    return 1;
 }
+
+%%

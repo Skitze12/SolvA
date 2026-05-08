@@ -1,0 +1,19 @@
+// N-Queens Problem: 4 queens on a 4x4 board
+// Constraint: No two queens can be in the same row or column
+var Col1 in [1..4];
+var Col2 in [1..4];
+var Col3 in [1..4];
+var Col4 in [1..4];
+
+constraint Col1 != Col2;
+constraint Col1 != Col3;
+constraint Col1 != Col4;
+constraint Col2 != Col3;
+constraint Col2 != Col4;
+constraint Col3 != Col4;
+
+// Valid solution: [1, 3, 0, 2] (adjusting for 1-based indexing)
+Col1 = 2;
+Col2 = 4;
+Col3 = 1;
+Col4 = 3;
