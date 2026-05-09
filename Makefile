@@ -4,7 +4,7 @@ BISON = bison
 CXXFLAGS = -std=c++11 -Wall -Wextra -I./include
 
 # Source files
-SOURCES = src/main.cpp src/ast.cpp src/logic_engine.cpp src/symbol_table.cpp
+SOURCES = src/main.cpp src/ast.cpp src/logic_engine.cpp src/symbol_table.cpp src/visualizer.cpp
 LEXER_SOURCE = src/lexer.l
 PARSER_SOURCE = src/parser.y
 
@@ -45,7 +45,7 @@ src/parser.o: $(PARSER_GEN)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(TARGET) $(OBJECTS) $(LEXER_GEN) $(PARSER_GEN) $(PARSER_HEADER) output.dot
+	rm -f $(TARGET) $(OBJECTS) $(LEXER_GEN) $(PARSER_GEN) $(PARSER_HEADER) output.dot output.png output.svg
 
 run: $(TARGET)
 	./$(TARGET) examples/nqueens.solva

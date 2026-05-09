@@ -1,7 +1,11 @@
+// Invalid N-Queens - Two queens in same column
 var Col1 in [1..4];
 var Col2 in [1..4];
 
 constraint Col1 != Col2;
 
+Manual Inputs:
 Col1 = 2;
 Col2 = 2;
+
+Machine Inputs:

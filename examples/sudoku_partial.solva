@@ -1,5 +1,5 @@
-// N-Queens Problem: 4 queens on a 4x4 board
-// Constraint: No two queens can be in the same row or column
+// Sudoku Example with Partial Manual Inputs
+// Only first two queens are manually assigned, rest are auto-solved
 var Col1 in [1..4];
 var Col2 in [1..4];
 var Col3 in [1..4];
@@ -12,10 +12,5 @@ constraint Col2 != Col3;
 constraint Col2 != Col4;
 constraint Col3 != Col4;
 
-Manual Inputs:
-Col1 = 2;
-Col2 = 4;
-Col3 = 1;
-Col4 = 3;
 
 Machine Inputs:

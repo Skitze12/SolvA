@@ -16,6 +16,13 @@ class LogicEngine {
 private:
     // The master list of all constraints parsed from the code.
     std::vector<Constraint> rules;
+    
+    /*
+     * WHAT IT DOES: Recursive backtracking solver for constraint satisfaction.
+     * EXPECTS: Index of current variable, list of all variables, and symbol table.
+     * RETURNS: True if a valid solution is found, false otherwise.
+     */
+    bool solve(size_t varIndex, const std::vector<std::string>& variables, SymbolTable& st) const;
 
 public:
     LogicEngine() = default;
@@ -36,6 +43,13 @@ public:
      * RETURNS: True if the move is completely legal. False if it breaks a rule.
      */
     bool isMoveValid(const std::string& targetVar, int targetValue, const SymbolTable& st) const;
+    
+    /*
+     * WHAT IT DOES: Automatically finds a valid solution that satisfies all constraints.
+     * EXPECTS: A mutable reference to the symbol table with registered variables.
+     * RETURNS: True if a valid solution is found, false if no solution exists.
+     */
+    bool findSolution(SymbolTable& st) const;
 };
 
 #endif

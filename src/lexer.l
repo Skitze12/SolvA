@@ -20,6 +20,8 @@
 "var"                   { return KEYWORD_VAR; }
 "in"                    { return KEYWORD_IN; }
 "constraint"            { return KEYWORD_CONSTRAINT; }
+"Manual Inputs"         { return KEYWORD_MANUAL; }
+"Machine Inputs"        { return KEYWORD_MACHINE; }
 
 "=="                    { yylval.str_val = strdup(yytext); return OPERATOR; }
 "!="                    { yylval.str_val = strdup(yytext); return OPERATOR; }
@@ -33,12 +35,20 @@
 
 "="                     { return ASSIGN; }
 ";"                     { return SEMICOLON; }
+":"                     { return ':'; }
 "."                     { return '.'; }
 "["                     { return '['; }
 "]"                     { return ']'; }
 
 .                       { 
-    std::cerr << "LEXICAL ERROR at line " << yylineno << ": Unrecognized character '" << yytext << "'" << std::endl;
+    // Provide more informative error message for common mistakes
+    if (yytext[0] == '"' || yytext[0] == '\'') {
+        std::cerr << "LEXICAL ERROR at line " << yylineno << ": Strings are not supported. Use identifiers instead." << std::endl;
+    } else if (yytext[0] == '#' || yytext[0] == '@') {
+        std::cerr << "LEXICAL ERROR at line " << yylineno << ": Invalid character '" << yytext[0] << "'. Comments start with //." << std::endl;
+    } else {
+        std::cerr << "LEXICAL ERROR at line " << yylineno << ": Unrecognized character '" << yytext[0] << "'." << std::endl;
+    }
     return 1;
 }
 

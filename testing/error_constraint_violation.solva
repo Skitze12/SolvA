@@ -1,0 +1,10 @@
+// TEST: Constraint violation
+var A in [1..4];
+var B in [1..4];
+constraint A != B;
+
+Manual Inputs:
+A = 3;
+B = 3;
+
+Machine Inputs:

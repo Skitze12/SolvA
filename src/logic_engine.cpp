@@ -75,15 +75,48 @@ bool LogicEngine::isMoveValid(const std::string& targetVar, int targetValue, con
         
         if (!constraintSatisfied) {
             // This constraint is violated
-            std::cerr << "CONSTRAINT VIOLATION: " << rule.var1 << " " << rule.op << " " << rule.var2;
-            if (targetVarInvolvedAsVar1) {
-                std::cerr << " (attempted to set " << targetVar << " = " << targetValue << ", but " << otherVar << " = " << otherValue << ")" << std::endl;
-            } else {
-                std::cerr << " (attempted to set " << targetVar << " = " << targetValue << ", but " << otherVar << " = " << otherValue << ")" << std::endl;
-            }
             return false;
         }
     }
     
     return true; // All constraints are satisfied
+}
+
+bool LogicEngine::solve(size_t varIndex, const std::vector<std::string>& variables, SymbolTable& st) const {
+    // Base case: all variables assigned
+    if (varIndex == variables.size()) {
+        return true;
+    }
+    
+    const std::string& currentVar = variables[varIndex];
+    VariableDomain domain = st.getDomain(currentVar);
+    
+    // Try each value in the variable's domain
+    for (int value = domain.minValue; value <= domain.maxValue; ++value) {
+        if (isMoveValid(currentVar, value, st)) {
+            // This value is valid, so assign it
+            st.setValue(currentVar, value);
+            
+            // Recursively try to solve the rest
+            if (solve(varIndex + 1, variables, st)) {
+                return true;
+            }
+            
+            // Backtrack: remove the assignment if it didn't lead to a solution
+            st.unsetValue(currentVar);
+        }
+    }
+    
+    return false;
+}
+
+bool LogicEngine::findSolution(SymbolTable& st) const {
+    // Get all registered variables
+    std::vector<std::string> variables = st.getAllVariables();
+    
+    // Clear any existing assignments
+    st.clearAssignments();
+    
+    // Use backtracking to find a valid solution
+    return solve(0, variables, st);
 }

@@ -1,0 +1,7 @@
+// TEST: Invalid domain (min > max)
+var B in [10..5];
+
+Manual Inputs:
+B = 7;
+
+Machine Inputs:

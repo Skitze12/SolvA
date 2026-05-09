@@ -1,0 +1,8 @@
+// TEST: Unassigned variable in Manual Inputs section
+var A in [1..5];
+var B in [1..5];
+
+Manual Inputs:
+A = 2;
+
+Machine Inputs:

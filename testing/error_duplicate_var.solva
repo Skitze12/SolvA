@@ -1,0 +1,8 @@
+// TEST: Duplicate variable declaration
+var A in [1..5];
+var A in [1..10];
+
+Manual Inputs:
+A = 3;
+
+Machine Inputs:

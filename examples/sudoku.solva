@@ -8,7 +8,9 @@ constraint Cell1 != Cell2;
 constraint Cell1 != Cell3;
 constraint Cell2 != Cell3;
 
-// Valid solution
+Manual Inputs:
 Cell1 = 5;
 Cell2 = 3;
-Cell3 = 4;
+Cell3 = 7;
+
+Machine Inputs:

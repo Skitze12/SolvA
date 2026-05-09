@@ -1,0 +1,7 @@
+// TEST: Assignment value out of domain
+var A in [1..5];
+
+Manual Inputs:
+A = 10;
+
+Machine Inputs:

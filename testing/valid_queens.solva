@@ -1,0 +1,20 @@
+// TEST: Valid 4-Queens problem (no errors)
+var Q1 in [1..4];
+var Q2 in [1..4];
+var Q3 in [1..4];
+var Q4 in [1..4];
+
+constraint Q1 != Q2;
+constraint Q1 != Q3;
+constraint Q1 != Q4;
+constraint Q2 != Q3;
+constraint Q2 != Q4;
+constraint Q3 != Q4;
+
+Manual Inputs:
+Q1 = 1;
+Q2 = 3;
+Q3 = 4;
+Q4 = 2;
+
+Machine Inputs:

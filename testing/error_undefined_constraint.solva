@@ -1,0 +1,8 @@
+// TEST: Undefined variable in constraint
+var A in [1..5];
+constraint A != X;
+
+Manual Inputs:
+A = 2;
+
+Machine Inputs:
