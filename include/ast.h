@@ -57,6 +57,24 @@ public:
     std::string toDot() const override;
 };
 
+// --- TERMINAL NODE (for lexical symbols: ;, [, ], =, etc.) ---
+class TerminalNode : public Node {
+private:
+    std::string symbol;
+    std::string type;  // "symbol", "operator", "keyword", "number", "identifier"
+
+public:
+    /*
+     * EXPECTS: The symbol/terminal text and its type.
+     */
+    TerminalNode(std::string sym, std::string typ = "symbol");
+
+    /*
+     * RETURNS: A DOT string for this terminal node.
+     */
+    std::string toDot() const override;
+};
+
 // --- EOF NODE (terminal marker) ---
 class EOFNode : public Node {
 public:
@@ -103,9 +121,13 @@ private:
     std::string varName;
     int value;
     bool isManual;  // Track if this is manual or machine input
-    LeafNode* varNode;
-    LeafNode* valueNode;
-    LeafNode* typeNode;  // Shows "MANUAL" or "MACHINE"
+    
+    // Terminals
+    LeafNode* varNode;           // variable name
+    TerminalNode* assignOpNode;  // "="
+    LeafNode* valueNode;         // numeric value
+    TerminalNode* semicolonNode; // ";"
+    LeafNode* typeNode;          // Shows "MANUAL" or "MACHINE"
 
 public:
     /*
@@ -115,7 +137,7 @@ public:
     ~AssignmentNode();
 
     /*
-     * RETURNS: A DOT string showing the assignment and its type (manual/machine).
+     * RETURNS: A DOT string showing the complete parse tree with all terminals.
      */
     std::string toDot() const override;
     
@@ -138,9 +160,17 @@ private:
     std::string varName;
     int minVal;
     int maxVal;
-    LeafNode* nameNode;
-    LeafNode* minNode;
-    LeafNode* maxNode;
+    
+    // Terminals
+    TerminalNode* kwVarNode;      // "var"
+    LeafNode* nameNode;           // variable name
+    TerminalNode* kwInNode;       // "in"
+    TerminalNode* bracketOpenNode;     // "["
+    LeafNode* minNode;            // min value
+    TerminalNode* dotDotNode;     // ".."
+    LeafNode* maxNode;            // max value
+    TerminalNode* bracketCloseNode;    // "]"
+    TerminalNode* semicolonNode;  // ";"
 
 public:
     /*
@@ -150,7 +180,7 @@ public:
     ~VarDeclNode();
 
     /*
-     * RETURNS: A DOT string like: node_0 [label="Var: Sindh in [1..3]"];
+     * RETURNS: A DOT string showing the complete parse tree with all terminals.
      */
     std::string toDot() const override;
     
@@ -168,9 +198,13 @@ private:
     std::string var1;
     std::string op;
     std::string var2;
-    LeafNode* leftNode;
-    LeafNode* opNode;
-    LeafNode* rightNode;
+    
+    // Terminals
+    TerminalNode* kwConstraintNode;  // "constraint"
+    LeafNode* leftNode;              // left variable
+    TerminalNode* opNode;            // operator (!=, ==, <, >, <=, >=)
+    LeafNode* rightNode;             // right variable
+    TerminalNode* semicolonNode;     // ";"
 
 public:
     /*
@@ -180,7 +214,7 @@ public:
     ~ConstraintNode();
 
     /*
-     * RETURNS: A DOT string like: node_2 [label="Constraint: Sindh != Punjab"];
+     * RETURNS: A DOT string showing the complete parse tree with all terminals.
      */
     std::string toDot() const override;
     

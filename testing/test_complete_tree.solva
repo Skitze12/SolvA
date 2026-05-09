@@ -1,0 +1,10 @@
+// Simple test to verify complete parse tree with all terminals
+var X in [1..3];
+var Y in [1..3];
+constraint X != Y;
+
+Manual Inputs:
+X = 1;
+Y = 2;
+
+Machine Inputs:
