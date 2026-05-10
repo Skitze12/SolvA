@@ -5,11 +5,13 @@
 #include <vector>
 #include <string>
 
-// A simple structure to hold a rule like "A != B"
+// A structure to hold a rule like "A != B" or "abs(A - B) != 1"
 struct Constraint {
+    bool isAbs; // true if this is an absolute difference rule
     std::string var1;
     std::string op;
-    std::string var2;
+    std::string var2; // Used if isAbs == false
+    int intVal;       // Used if isAbs == true
 };
 
 class LogicEngine {
@@ -34,6 +36,12 @@ public:
      * RETURNS: Nothing (void).
      */
     void addRule(const std::string& v1, const std::string& op, const std::string& v2);
+
+    /*
+     * WHAT IT DOES: Saves a new absolute difference rule into the engine's memory.
+     * EXPECTS: The two variables to subtract, the operator, and the integer value.
+     */
+    void addRule(const std::string& v1, const std::string& v2, const std::string& op, int intVal);
 
     /*
      * WHAT IT DOES: The core validator. It checks if assigning a specific value 

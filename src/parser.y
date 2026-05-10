@@ -30,7 +30,7 @@ std::vector<std::string> manuallyAssignedVars;  // Track manually assigned varia
 %destructor { free($$); } <str_val>
 
 /* Keywords */
-%token KEYWORD_VAR KEYWORD_IN KEYWORD_CONSTRAINT KEYWORD_MANUAL KEYWORD_MACHINE
+%token KEYWORD_VAR KEYWORD_IN KEYWORD_CONSTRAINT KEYWORD_MANUAL KEYWORD_MACHINE KEYWORD_ABS
 
 /* Symbols */
 %token ASSIGN SEMICOLON
@@ -50,7 +50,8 @@ program : line
             astRoot->setFirstLine((Node*)$1);
             
             // VALIDATION: Check if Manual Inputs section exists but variables are unassigned
-            if (hasManualInputsSection) {
+            // Only throw an error if the user didn't request Machine Inputs to solve the rest
+            if (hasManualInputsSection && !inMachineInputMode) {
                 std::vector<std::string> unassignedInManual = symbolTable.getUnassignedVariables();
                 if (!unassignedInManual.empty()) {
                     std::cerr << "\nSEMANTIC ERROR: Manual Inputs section found but the following variables are not assigned:" << std::endl;
@@ -150,6 +151,7 @@ var_decl : KEYWORD_VAR ID KEYWORD_IN '[' INT '.' '.' INT ']' SEMICOLON
          ;
 
 // Example: constraint Sindh != Punjab;
+// Example: constraint abs(Col1 - Col2) != 1;
 constraint_def : KEYWORD_CONSTRAINT ID OPERATOR ID SEMICOLON
                {
                    // ERROR: Check if left variable exists
@@ -174,6 +176,31 @@ constraint_def : KEYWORD_CONSTRAINT ID OPERATOR ID SEMICOLON
                    
                    // Memory Cleanup for string tokens
                    free($2); free($3); free($4);
+               }
+               | KEYWORD_CONSTRAINT KEYWORD_ABS '(' ID '-' ID ')' OPERATOR INT SEMICOLON
+               {
+                   // ERROR: Check if left variable exists
+                   if (!symbolTable.variableExists($4)) {
+                       std::cerr << "SEMANTIC ERROR at line " << yylineno << ": Variable '" << $4 
+                                 << "' used in constraint but never declared!" << std::endl;
+                       YYERROR;
+                   }
+                   
+                   // ERROR: Check if right variable exists
+                   if (!symbolTable.variableExists($6)) {
+                       std::cerr << "SEMANTIC ERROR at line " << yylineno << ": Variable '" << $6 
+                                 << "' used in constraint but never declared!" << std::endl;
+                       YYERROR;
+                   }
+                   
+                   // Logic Trigger: Add absolute difference rule to logic engine
+                   logicEngine.addRule($4, $6, $8, $9);
+                   
+                   // Build AST Node
+                   $$ = (void*)(new AbsConstraintNode($4, $6, $8, $9));
+                   
+                   // Memory Cleanup for string tokens
+                   free($4); free($6); free($8);
                }
                ;
 

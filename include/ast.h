@@ -224,6 +224,35 @@ public:
     bool isConstraint() const override { return true; }
 };
 
+// --- THE ABS CONSTRAINT NODE ---
+// Represents a line like: constraint abs(Col1 - Col2) != 1;
+class AbsConstraintNode : public Node {
+private:
+    std::string var1;
+    std::string var2;
+    std::string op;
+    int intVal;
+    
+    // Terminals
+    TerminalNode* kwConstraintNode;
+    TerminalNode* kwAbsNode;
+    TerminalNode* openParenNode;
+    LeafNode* leftVarNode;
+    TerminalNode* minusNode;
+    LeafNode* rightVarNode;
+    TerminalNode* closeParenNode;
+    TerminalNode* opNode;
+    LeafNode* intValNode;
+    TerminalNode* semicolonNode;
+
+public:
+    AbsConstraintNode(std::string v1, std::string v2, std::string op, int val);
+    ~AbsConstraintNode();
+
+    std::string toDot() const override;
+    bool isConstraint() const override { return true; }
+};
+
 // --- THE ROOT PROGRAM NODE ---
 // Represents the entire file. Has a single child: the first line.
 class ProgramNode : public Node {

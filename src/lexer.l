@@ -20,6 +20,7 @@
 "var"                   { return KEYWORD_VAR; }
 "in"                    { return KEYWORD_IN; }
 "constraint"            { return KEYWORD_CONSTRAINT; }
+"abs"                   { return KEYWORD_ABS; }
 "Manual Inputs"         { return KEYWORD_MANUAL; }
 "Machine Inputs"        { return KEYWORD_MACHINE; }
 
@@ -39,6 +40,9 @@
 "."                     { return '.'; }
 "["                     { return '['; }
 "]"                     { return ']'; }
+"("                     { return '('; }
+")"                     { return ')'; }
+"-"                     { return '-'; }
 
 .                       { 
     // Provide more informative error message for common mistakes

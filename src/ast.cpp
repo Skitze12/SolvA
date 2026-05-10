@@ -221,6 +221,65 @@ std::string ConstraintNode::toDot() const {
     return oss.str();
 }
 
+// --- ABS CONSTRAINT NODE ---
+AbsConstraintNode::AbsConstraintNode(std::string v1, std::string v2, std::string op_str, int val) 
+    : var1(v1), var2(v2), op(op_str), intVal(val) {
+    kwConstraintNode = new TerminalNode("constraint", "keyword");
+    kwAbsNode = new TerminalNode("abs", "keyword");
+    openParenNode = new TerminalNode("(", "symbol");
+    leftVarNode = new LeafNode(v1, "white");
+    minusNode = new TerminalNode("-", "operator");
+    rightVarNode = new LeafNode(v2, "white");
+    closeParenNode = new TerminalNode(")", "symbol");
+    opNode = new TerminalNode(op_str, "operator");
+    intValNode = new LeafNode(std::to_string(val), "lightgreen");
+    semicolonNode = new TerminalNode(";", "symbol");
+}
+
+AbsConstraintNode::~AbsConstraintNode() {
+    delete kwConstraintNode;
+    delete kwAbsNode;
+    delete openParenNode;
+    delete leftVarNode;
+    delete minusNode;
+    delete rightVarNode;
+    delete closeParenNode;
+    delete opNode;
+    delete intValNode;
+    delete semicolonNode;
+}
+
+std::string AbsConstraintNode::toDot() const {
+    std::ostringstream oss;
+    oss << "node_" << nodeId << " [label=\"AbsConstraint\", shape=box, style=filled, fillcolor=lightyellow];\n";
+    
+    // Add all children in order
+    oss << "  " << kwConstraintNode->toDot();
+    oss << "  " << kwAbsNode->toDot();
+    oss << "  " << openParenNode->toDot();
+    oss << "  " << leftVarNode->toDot();
+    oss << "  " << minusNode->toDot();
+    oss << "  " << rightVarNode->toDot();
+    oss << "  " << closeParenNode->toDot();
+    oss << "  " << opNode->toDot();
+    oss << "  " << intValNode->toDot();
+    oss << "  " << semicolonNode->toDot();
+    
+    // Add edges
+    oss << "  node_" << nodeId << " -> node_" << kwConstraintNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << kwAbsNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << openParenNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << leftVarNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << minusNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << rightVarNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << closeParenNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << opNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << intValNode->getNodeId() << ";\n";
+    oss << "  node_" << nodeId << " -> node_" << semicolonNode->getNodeId() << ";\n";
+    
+    return oss.str();
+}
+
 // --- PROGRAM NODE ---
 ProgramNode::ProgramNode() : firstLine(nullptr) {}
 

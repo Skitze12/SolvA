@@ -1,8 +1,13 @@
 #include "../include/logic_engine.h"
 #include <iostream>
+#include <cmath>
 
 void LogicEngine::addRule(const std::string& v1, const std::string& op, const std::string& v2) {
-    rules.push_back({v1, op, v2});
+    rules.push_back({false, v1, op, v2, 0});
+}
+
+void LogicEngine::addRule(const std::string& v1, const std::string& v2, const std::string& op, int intVal) {
+    rules.push_back({true, v1, op, v2, intVal});
 }
 
 bool LogicEngine::isMoveValid(const std::string& targetVar, int targetValue, const SymbolTable& st) const {
@@ -43,33 +48,50 @@ bool LogicEngine::isMoveValid(const std::string& targetVar, int targetValue, con
         // Now check if targetValue and otherValue satisfy the constraint
         bool constraintSatisfied = false;
         
-        if (rule.op == "==") {
-            constraintSatisfied = (targetValue == otherValue);
-        } else if (rule.op == "!=") {
-            constraintSatisfied = (targetValue != otherValue);
-        } else if (rule.op == "<") {
-            if (targetVarInvolvedAsVar1) {
-                constraintSatisfied = (targetValue < otherValue);
-            } else {
-                constraintSatisfied = (otherValue < targetValue);
+        if (rule.isAbs) {
+            int absDiff = std::abs(targetValue - otherValue);
+            if (rule.op == "==") {
+                constraintSatisfied = (absDiff == rule.intVal);
+            } else if (rule.op == "!=") {
+                constraintSatisfied = (absDiff != rule.intVal);
+            } else if (rule.op == "<") {
+                constraintSatisfied = (absDiff < rule.intVal);
+            } else if (rule.op == ">") {
+                constraintSatisfied = (absDiff > rule.intVal);
+            } else if (rule.op == "<=") {
+                constraintSatisfied = (absDiff <= rule.intVal);
+            } else if (rule.op == ">=") {
+                constraintSatisfied = (absDiff >= rule.intVal);
             }
-        } else if (rule.op == ">") {
-            if (targetVarInvolvedAsVar1) {
-                constraintSatisfied = (targetValue > otherValue);
-            } else {
-                constraintSatisfied = (otherValue > targetValue);
-            }
-        } else if (rule.op == "<=") {
-            if (targetVarInvolvedAsVar1) {
-                constraintSatisfied = (targetValue <= otherValue);
-            } else {
-                constraintSatisfied = (otherValue <= targetValue);
-            }
-        } else if (rule.op == ">=") {
-            if (targetVarInvolvedAsVar1) {
-                constraintSatisfied = (targetValue >= otherValue);
-            } else {
-                constraintSatisfied = (otherValue >= targetValue);
+        } else {
+            if (rule.op == "==") {
+                constraintSatisfied = (targetValue == otherValue);
+            } else if (rule.op == "!=") {
+                constraintSatisfied = (targetValue != otherValue);
+            } else if (rule.op == "<") {
+                if (targetVarInvolvedAsVar1) {
+                    constraintSatisfied = (targetValue < otherValue);
+                } else {
+                    constraintSatisfied = (otherValue < targetValue);
+                }
+            } else if (rule.op == ">") {
+                if (targetVarInvolvedAsVar1) {
+                    constraintSatisfied = (targetValue > otherValue);
+                } else {
+                    constraintSatisfied = (otherValue > targetValue);
+                }
+            } else if (rule.op == "<=") {
+                if (targetVarInvolvedAsVar1) {
+                    constraintSatisfied = (targetValue <= otherValue);
+                } else {
+                    constraintSatisfied = (otherValue <= targetValue);
+                }
+            } else if (rule.op == ">=") {
+                if (targetVarInvolvedAsVar1) {
+                    constraintSatisfied = (targetValue >= otherValue);
+                } else {
+                    constraintSatisfied = (otherValue >= targetValue);
+                }
             }
         }
         

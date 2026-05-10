@@ -12,10 +12,18 @@ constraint Col2 != Col3;
 constraint Col2 != Col4;
 constraint Col3 != Col4;
 
+// Diagonal constraints: |Col_i - Col_j| != |i - j|
+constraint abs(Col1 - Col2) != 1;
+constraint abs(Col1 - Col3) != 2;
+constraint abs(Col1 - Col4) != 3;
+constraint abs(Col2 - Col3) != 1;
+constraint abs(Col2 - Col4) != 2;
+constraint abs(Col3 - Col4) != 1;
+
 Manual Inputs:
-Col1 = 2;
-Col2 = 4;
-Col3 = 1;
-Col4 = 3;
+Col1 = 1;
+Col2 = 2;
+Col3 = 3;
+Col4 = 4;
 
 Machine Inputs:

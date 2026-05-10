@@ -15,6 +15,7 @@ extern FILE* yyin;
 extern ProgramNode* astRoot;
 extern LogicEngine logicEngine;
 extern SymbolTable symbolTable;
+extern std::vector<std::string> manuallyAssignedVars;
 
 // Helper function to save DOT output to a file
 void saveDotToFile(const std::string& dotCode, const std::string& filename) {
@@ -77,7 +78,7 @@ int main(int argc, char** argv) {
         // Print all manual assignments
         cout << "\n--- Manual Assignments (from file) ---" << endl;
         bool hasManual = false;
-        for (const auto& var : symbolTable.getAllVariables()) {
+        for (const auto& var : manuallyAssignedVars) {
             if (symbolTable.hasValue(var)) {
                 cout << "  " << var << " = " << symbolTable.getValue(var) << " (MANUAL)" << endl;
                 hasManual = true;
@@ -87,21 +88,10 @@ int main(int argc, char** argv) {
             cout << "  (No manual assignments)" << endl;
         }
         
-        // Attempt to find a valid solution using constraint solving for unassigned variables
-        auto unassignedVars = symbolTable.getUnassignedVariables();
+        // Note: The machine solver is now run directly in parser.y 
+        // to handle "Machine Inputs" dynamically during parsing.
         
-        if (!unassignedVars.empty()) {
-            cout << "\n--- Machine-Generated Solutions ---" << endl;
-            if (logicEngine.findSolution(symbolTable)) {
-                for (const auto& var : unassignedVars) {
-                    if (symbolTable.hasValue(var)) {
-                        cout << "  " << var << " = " << symbolTable.getValue(var) << " (MACHINE)" << endl;
-                    }
-                }
-            } else {
-                cout << "✗ Machine could not find valid assignments for remaining variables." << endl;
-            }
-        } else {
+        if (manuallyAssignedVars.size() == symbolTable.getAllVariables().size()) {
             cout << "\n--- Final Solution ---" << endl;
             cout << "All variables have been assigned manually. No machine-generated solutions needed." << endl;
         }
