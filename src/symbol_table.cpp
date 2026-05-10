@@ -55,7 +55,7 @@ bool SymbolTable::variableExists(const std::string& name) const {
 bool SymbolTable::isValueInDomain(const std::string& name, int val) const {
     auto it = domains.find(name);
     if (it == domains.end()) {
-        return false;  // Variable doesn't exist
+        return false;
     }
     return val >= it->second.minValue && val <= it->second.maxValue;
 }

@@ -5,13 +5,10 @@
 #include <string>
 
 /*
- * WHAT IT DOES: Converts a DOT file to an image using Graphviz
- * EXPECTS: Input DOT filename, output image filename, and format (png, svg, pdf, etc.)
- * RETURNS: True if successful, false otherwise
+ Converts a DOT file to an image using Graphviz
  */
 bool convertDotToImage(const std::string& dotFile, const std::string& outputFile, const std::string& format) {
-    // Construct the dot command
-    // Format: dot -Tformat input.dot -o output.image
+    //dot -Tformat input.dot -o output.image
     std::ostringstream command;
     command << "dot -T" << format << " \"" << dotFile << "\" -o \"" << outputFile << "\"";
     
@@ -30,11 +27,6 @@ bool convertDotToImage(const std::string& dotFile, const std::string& outputFile
     }
 }
 
-/*
- * WHAT IT DOES: Opens an image file with the default viewer
- * EXPECTS: Path to the image file
- * RETURNS: True if successful, false otherwise
- */
 bool openImageViewer(const std::string& imageFile) {
     std::ifstream file(imageFile);
     if (!file.good()) {
@@ -67,9 +59,8 @@ bool openImageViewer(const std::string& imageFile) {
 }
 
 /*
- * WHAT IT DOES: Generates PNG visualization from a DOT file and opens it
- * EXPECTS: Path to the DOT file
- * RETURNS: True if successful, false otherwise
+ Generates PNG from a DOT file
+
  */
 bool visualizeAstAsPNG(const std::string& dotFile) {
     std::string pngFile = dotFile.substr(0, dotFile.rfind(".dot")) + ".png";
@@ -85,9 +76,7 @@ bool visualizeAstAsPNG(const std::string& dotFile) {
 }
 
 /*
- * WHAT IT DOES: Generates SVG visualization from a DOT file
- * EXPECTS: Path to the DOT file
- * RETURNS: True if successful, false otherwise
+Generates SVG visualization
  */
 bool visualizeAstAsSVG(const std::string& dotFile) {
     std::string svgFile = dotFile.substr(0, dotFile.rfind(".dot")) + ".svg";
@@ -101,11 +90,10 @@ bool visualizeAstAsSVG(const std::string& dotFile) {
     return success;
 }
 
-/*
- * WHAT IT DOES: Generates both PNG and SVG visualizations
- * EXPECTS: Path to the DOT file
- * RETURNS: True if at least one format succeeds, false if both fail
- */
+
+ //Generates  PNG and SVG visualizations
+
+ 
 bool visualizeAst(const std::string& dotFile) {
     std::ifstream file(dotFile);
     if (!file.good()) {

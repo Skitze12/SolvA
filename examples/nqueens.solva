@@ -1,9 +1,9 @@
 // N-Queens Problem: 4 queens on a 4x4 board
 // Constraint: No two queens can be in the same row or column
-var Col1 in [1..4];
-var Col2 in [1..4];
-var Col3 in [1..4];
-var Col4 in [1..4];
+var Col1 in [1..7];
+var Col2 in [1..7];
+var Col3 in [1..7];
+var Col4 in [1..7];
 
 constraint Col1 != Col2;
 constraint Col1 != Col3;
@@ -22,8 +22,6 @@ constraint abs(Col3 - Col4) != 1;
 
 Manual Inputs:
 Col1 = 1;
-Col2 = 2;
-Col3 = 3;
-Col4 = 4;
+Col2 = 3;
 
 Machine Inputs:

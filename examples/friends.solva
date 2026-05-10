@@ -1,0 +1,28 @@
+// Friends Age Puzzle
+// Four friends have different ages from 1 to 4
+// Constraints:
+// - Alice is older than Bob
+// - Carol is younger than David  
+// - Bob is older than Carol
+// - All must have different ages
+
+var Alice in [1..4];
+var Bob in [1..4];
+var Carol in [1..4];
+var David in [1..4];
+
+// All different
+constraint Alice != Bob;
+constraint Alice != Carol;
+constraint Alice != David;
+constraint Bob != Carol;
+constraint Bob != David;
+constraint Carol != David;
+
+// Comparison constraints
+constraint Alice > Bob;
+constraint Carol < David;
+constraint Bob > Carol;
+
+
+Machine Inputs:
