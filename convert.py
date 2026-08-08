@@ -1,87 +1,88 @@
+python
 import os
 import sys
+import math
 import numpy as np
+import pydicom	
 import SimpleITK as sitk
+
 from rt_utils import RTStructBuilder
 
 
+
 # ============================================================
-# COLORS
+# CONFIGURATION
 # ============================================================
 
 ROI_COLORS = {
 
-    "Brain":               [255,255,0],
-    "BrainStem":           [128,128,0],
-    "Cerebellum":           [255,0,255],
-    "Thalamus":             [220,220,220],
-    "Frontal Lobe":         [110,110,110],
-    "Parietal Lobe":        [150,150,150],
-    "Septum Pellucidum":    [101,100,100],
-    "Temporal Lobe":        [100,100,100],
-    "Occipital Lobe":       [151,100,100],
-    "Ventricle":            [120,120,120],
+    "Brain":               [255, 255, 0],
+    "BrainStem":           [128, 128, 0],
+    "Cerebellum":           [255, 0, 255],
+    "Thalamus":             [220, 220, 220],
+    "Frontal Lobe":         [110, 110, 110],
+    "Parietal Lobe":        [150, 150, 150],
+    "Septum Pellucidum":    [101, 100, 100],
+    "Temporal Lobe":        [100, 100, 100],
+    "Occipital Lobe":       [151, 100, 100],
+    "Ventricle":            [120, 120, 120],
 
-    "Breast":               [106,137,241],
+    "Breast":               [106, 137, 241],
 
-    "Heart":                [150,75,0],
+    "Heart":                [150, 75, 0],
 
-    "Lung_L":               [0,0,255],
-    "Lung_R":               [0,100,0],
+    "Lung_L":               [0, 0, 255],
+    "Lung_R":               [0, 100, 0],
 
-    "SpinalCord":            [255,128,128],
+    "SpinalCord":           [255, 128, 128],
 
-    "Liver":                [255,255,237],
+    "Liver":                [255, 255, 237],
 
-    "Kidney_L":             [0,255,0],
-    "Kidney_R":             [0,180,0],
+    "Kidney_L":             [0, 255, 0],
+    "Kidney_R":             [0, 180, 0],
 
-    "Thyroid":              [255,200,0],
+    "Thyroid":              [255, 200, 0],
 
-    "Esophagus":            [255,196,255],
+    "Esophagus":            [255, 196, 255],
 
-    "Trachea":              [0,191,191],
+    "Trachea":              [0, 191, 191],
 
-    "UrinaryBladder":       [255,255,120],
+    "UrinaryBladder":       [255, 255, 120],
 
-    "Colon":                [255,170,170],
+    "Colon":                [255, 170, 170],
 
-    "SmallBowel":           [170,255,170],
+    "SmallBowel":           [170, 255, 170],
 
-    "Sacrum":               [255,255,255],
+    "Sacrum":               [255, 255, 255],
 
-    "Cervical_Vertebrae":   [255,105,180],
-    "Thoracic_Vertebrae":   [225,110,180],
-    "Lumbar_Vertebrae":     [210,115,180],
+    "Cervical_Vertebrae":   [255, 105, 180],
+    "Thoracic_Vertebrae":   [225, 110, 180],
+    "Lumbar_Vertebrae":     [210, 115, 180],
 
-    "Pancreas":             [255,174,66],
-    "Prostate":             [255,0,0],
+    "Pancreas":             [255, 174, 66],
+    "Prostate":             [255, 0, 0],
 
-    "Femur_L":              [128,10,10],
-    "Femur_R":              [128,125,110],
+    "Femur_L":              [128, 10, 10],
+    "Femur_R":              [128, 125, 110],
 
-    "Stomach":              [192,194,194],
-    "Spleen":               [221,255,255],
+    "Stomach":              [192, 194, 194],
+    "Spleen":               [221, 255, 255],
 
-    "Eye_L":                [0,1,39],
-    "Eye_R":                [0,64,0],
+    "Eye_L":                [0, 1, 39],
+    "Eye_R":                [0, 64, 0],
 
-    "Lens_L":               [144,238,144],
-    "Lens_R":               [255,192,191],
+    "Lens_L":               [144, 238, 144],
+    "Lens_R":               [255, 192, 191],
 
-    "OpticNerve_L":         [200,180,255],
-    "OpticNerve_R":         [128,0,128],
+    "OpticNerve_L":         [200, 180, 255],
+    "OpticNerve_R":         [128, 0, 128],
 
-    "Parotid_L":            [130,255,100],
-    "Parotid_R":            [167,167,167],
+    "Parotid_L":            [130, 255, 100],
+    "Parotid_R":            [167, 167, 167],
 
-    "Larynx_Air":           [192,100,102]
+    "Larynx_Air":           [192, 100, 102],
 }
 
-
-# ============================================================
-# DISPLAY NAMES
-# ============================================================
 
 DISPLAY_NAMES = {
 
@@ -144,25 +145,25 @@ DISPLAY_NAMES = {
 
     "breast": "Breast",
 
-    "spleen": "Spleen"
+    "spleen": "Spleen",
 }
 
 
 # ============================================================
-# MERGED ROIS
+# BOOLEAN / MERGED STRUCTURES
 # ============================================================
 
 MERGED_ROIS = {
 
     "Lung_L": [
         "lung_upper_lobe_left",
-        "lung_lower_lobe_left"
+        "lung_lower_lobe_left",
     ],
 
     "Lung_R": [
         "lung_upper_lobe_right",
         "lung_middle_lobe_right",
-        "lung_lower_lobe_right"
+        "lung_lower_lobe_right",
     ],
 
     "Cervical_Vertebrae": [
@@ -172,7 +173,7 @@ MERGED_ROIS = {
         "vertebrae_C4",
         "vertebrae_C5",
         "vertebrae_C6",
-        "vertebrae_C7"
+        "vertebrae_C7",
     ],
 
     "Thoracic_Vertebrae": [
@@ -187,7 +188,7 @@ MERGED_ROIS = {
         "vertebrae_T9",
         "vertebrae_T10",
         "vertebrae_T11",
-        "vertebrae_T12"
+        "vertebrae_T12",
     ],
 
     "Lumbar_Vertebrae": [
@@ -196,18 +197,89 @@ MERGED_ROIS = {
         "vertebrae_L3",
         "vertebrae_L4",
         "vertebrae_L5",
-        "sacrum"
-    ]
+        "sacrum",
+    ],
 }
 
 
 # ============================================================
-# LOAD CT SERIES
+# DICOM DECIMAL STRING SAFETY
 # ============================================================
+
+def dicom_ds(value):
+    """
+    Convert a floating-point coordinate into a DICOM DS-safe
+    decimal string.
+
+    DICOM DS allows a maximum of 16 characters.
+
+    We use up to 6 decimal places, which is vastly more
+    precision than clinically meaningful for CT contour
+    coordinates while remaining safely within the DS limit.
+    """
+
+    value = float(value)
+
+    if not math.isfinite(value):
+        raise ValueError(
+            f"Non-finite contour coordinate encountered: {value}"
+        )
+
+    # Avoid negative zero
+    if abs(value) < 0.0000005:
+        value = 0.0
+
+    text = f"{value:.6f}".rstrip("0").rstrip(".")
+
+    # Safety check
+    if len(text) > 16:
+
+        # Fall back to scientific notation
+        text = f"{value:.8E}"
+
+    if len(text) > 16:
+        raise ValueError(
+            f"Could not create a valid DICOM DS value "
+            f"from coordinate {value}: '{text}'"
+        )
+
+    return text
+
+
+# ============================================================
+# CT SERIES LOADING
+# ============================================================
+def sanitize_rtstruct_contours(path):
+    ds = pydicom.dcmread(path)
+
+    if "ROIContourSequence" not in ds:
+        return
+
+    for roi_contour in ds.ROIContourSequence:
+
+        if "ContourSequence" not in roi_contour:
+            continue
+
+        for contour in roi_contour.ContourSequence:
+
+            if "ContourData" not in contour:
+                continue
+
+            contour.ContourData = [
+                dicom_ds(value)
+                for value in contour.ContourData
+            ]
+
+    ds.save_as(path)
+
+    print("Contour DS values sanitized.")
 
 def load_ct_series(ct_folder):
 
-    print("Loading original CT DICOM series...")
+    print()
+    print("==========================================")
+    print("Loading original CT series")
+    print("==========================================")
 
     reader = sitk.ImageSeriesReader()
 
@@ -215,7 +287,7 @@ def load_ct_series(ct_folder):
 
     if not series_ids:
         raise RuntimeError(
-            "No DICOM CT series found in:\n" + ct_folder
+            f"No DICOM series found in:\n{ct_folder}"
         )
 
     if len(series_ids) > 1:
@@ -224,52 +296,48 @@ def load_ct_series(ct_folder):
             f"WARNING: Found {len(series_ids)} DICOM series."
         )
 
-        # Select the largest series.
-        # Usually this corresponds to the main CT.
-        best_series = None
-        best_count = 0
+        print("Series IDs:")
 
         for series_id in series_ids:
+            print("  ", series_id)
 
-            files = reader.GetGDCMSeriesFileNames(
-                ct_folder,
-                series_id
+        # Select the series with the most files
+        selected_series = max(
+            series_ids,
+            key=lambda sid: len(
+                reader.GetGDCMSeriesFileNames(
+                    ct_folder,
+                    sid
+                )
             )
-
-            if len(files) > best_count:
-                best_count = len(files)
-                best_series = series_id
-
-        series_id = best_series
+        )
 
         print(
-            f"Using series with {best_count} slices."
+            "Selected series with most slices:"
         )
+        print(selected_series)
 
     else:
+        selected_series = series_ids[0]
 
-        series_id = series_ids[0]
-
-    dicom_files = reader.GetGDCMSeriesFileNames(
+    file_names = reader.GetGDCMSeriesFileNames(
         ct_folder,
-        series_id
+        selected_series
     )
 
-    if not dicom_files:
+    if not file_names:
         raise RuntimeError(
-            "Could not obtain DICOM files from CT series."
+            "Could not obtain DICOM files for CT series."
         )
 
-    reader.SetFileNames(dicom_files)
+    reader.SetFileNames(file_names)
 
     ct = reader.Execute()
 
-    print("CT loaded.")
-
-    print(f"CT size:      {ct.GetSize()}")
-    print(f"CT spacing:   {ct.GetSpacing()}")
-    print(f"CT origin:    {ct.GetOrigin()}")
-    print(f"CT direction: {ct.GetDirection()}")
+    print("CT size:      ", ct.GetSize())
+    print("CT spacing:   ", ct.GetSpacing())
+    print("CT origin:    ", ct.GetOrigin())
+    print("CT direction: ", ct.GetDirection())
 
     return ct
 
@@ -278,97 +346,166 @@ def load_ct_series(ct_folder):
 # GEOMETRY COMPARISON
 # ============================================================
 
-def geometry_matches(image, reference):
+def geometry_matches(mask_img, ct_img, tolerance=1e-4):
 
-    return (
-        image.GetSize() == reference.GetSize()
-        and np.allclose(
-            image.GetSpacing(),
-            reference.GetSpacing(),
-            atol=1e-5
-        )
-        and np.allclose(
-            image.GetOrigin(),
-            reference.GetOrigin(),
-            atol=1e-3
-        )
-        and np.allclose(
-            image.GetDirection(),
-            reference.GetDirection(),
-            atol=1e-5
-        )
+    mask_size = np.array(mask_img.GetSize())
+    ct_size = np.array(ct_img.GetSize())
+
+    if not np.array_equal(mask_size, ct_size):
+        return False
+
+    mask_spacing = np.array(mask_img.GetSpacing())
+    ct_spacing = np.array(ct_img.GetSpacing())
+
+    if not np.allclose(
+        mask_spacing,
+        ct_spacing,
+        atol=tolerance,
+        rtol=0
+    ):
+        return False
+
+    mask_origin = np.array(mask_img.GetOrigin())
+    ct_origin = np.array(ct_img.GetOrigin())
+
+    if not np.allclose(
+        mask_origin,
+        ct_origin,
+        atol=tolerance,
+        rtol=0
+    ):
+        return False
+
+    mask_direction = np.array(
+        mask_img.GetDirection()
     )
+
+    ct_direction = np.array(
+        ct_img.GetDirection()
+    )
+
+    if not np.allclose(
+        mask_direction,
+        ct_direction,
+        atol=tolerance,
+        rtol=0
+    ):
+        return False
+
+    return True
 
 
 # ============================================================
 # RESAMPLE MASK TO CT GRID
 # ============================================================
 
-def resample_mask_to_ct(mask_image, ct_image):
+def resample_mask_to_ct(mask_img, ct_img):
 
-    print("Checking mask geometry...")
-
-    if geometry_matches(mask_image, ct_image):
-
-        print("Geometry already matches CT.")
-
-        return mask_image
-
-    print("Mask geometry does NOT match CT.")
-
-    print("Resampling mask onto exact CT grid...")
-
-    resampled = sitk.Resample(
-        mask_image,
-        ct_image,
-        sitk.Transform(),
-        sitk.sitkNearestNeighbor,
-        0,
-        sitk.sitkUInt8
+    print(
+        "Geometry mismatch detected."
     )
 
-    print("Mask successfully resampled.")
+    print(
+        "Resampling segmentation onto EXACT CT grid..."
+    )
 
-    print(f"New mask size:      {resampled.GetSize()}")
-    print(f"New mask spacing:   {resampled.GetSpacing()}")
-    print(f"New mask origin:    {resampled.GetOrigin()}")
-    print(f"New mask direction: {resampled.GetDirection()}")
+    resampler = sitk.ResampleImageFilter()
+
+    resampler.SetReferenceImage(ct_img)
+
+    # IMPORTANT:
+    # Segmentation masks must use nearest-neighbour.
+    # Never use linear/cubic interpolation for labels.
+    resampler.SetInterpolator(
+        sitk.sitkNearestNeighbor
+    )
+
+    resampler.SetDefaultPixelValue(0)
+
+    resampler.SetTransform(
+        sitk.Transform()
+    )
+
+    resampled = resampler.Execute(mask_img)
 
     return resampled
 
 
 # ============================================================
-# CONVERT SIMPLEITK MASK TO RT-UTILS ARRAY
+# CONVERT SITK MASK TO RT-UTILS ORIENTATION
 # ============================================================
 
-def mask_to_rtutils_array(mask_image):
+def sitk_mask_to_rtutils(mask_img):
 
-    mask = sitk.GetArrayFromImage(mask_image)
+    """
+    SimpleITK array:
 
-    # SimpleITK NumPy ordering:
-    #
-    #   Z, Y, X
-    #
-    # rt-utils expects:
-    #
-    #   Y, X, Z
-    #
+        [z, y, x]
+
+    rt-utils expects:
+
+        [x, y, z]
+
+    with the orientation corresponding to the DICOM
+    image series.
+
+    This preserves the orientation convention used by the
+    existing converter.
+    """
+
+    mask = sitk.GetArrayFromImage(
+        mask_img
+    )
+
+    if mask.ndim != 3:
+        raise ValueError(
+            f"Expected 3D mask, got shape {mask.shape}"
+        )
+
     mask = np.transpose(
         mask,
         (1, 2, 0)
     )
 
-    # Preserve your existing orientation conversion.
-    #
-    # This is intentionally kept because your current
-    # pipeline already produces correctly positioned structures.
-    #
     mask = np.flip(
         mask,
         axis=0
     )
 
     mask = mask.astype(bool)
+
+    return mask
+
+
+# ============================================================
+# VALIDATE MASK
+# ============================================================
+
+def validate_mask(mask, ct_img, roi_name):
+
+    expected_size = (
+        ct_img.GetSize()[0],
+        ct_img.GetSize()[1],
+        ct_img.GetSize()[2],
+    )
+
+    if mask.shape != expected_size:
+
+        raise ValueError(
+            f"Mask geometry error for '{roi_name}'.\n"
+            f"Expected: {expected_size}\n"
+            f"Got:      {mask.shape}"
+        )
+
+    if mask.dtype != np.bool_:
+
+        mask = mask.astype(bool)
+
+    if not np.any(mask):
+
+        print(
+            f"WARNING: {roi_name} mask is empty."
+        )
 
     return mask
 
@@ -381,40 +518,74 @@ def main():
 
     if len(sys.argv) != 3:
 
+        print()
         print("Usage:")
-        print("python convert.py <CT_FOLDER> <MASK_FOLDER>")
+        print(
+            "python convert.py <CT_FOLDER> <MASK_FOLDER>"
+        )
+        print()
 
         sys.exit(1)
 
-    CT_FOLDER = sys.argv[1]
+    CT_FOLDER = os.path.abspath(
+        sys.argv[1]
+    )
 
-    MASK_FOLDER = sys.argv[2]
+    MASK_FOLDER = os.path.abspath(
+        sys.argv[2]
+    )
 
     OUTPUT_FILE = os.path.join(
         MASK_FOLDER,
         "RS.dcm"
     )
 
+    if not os.path.isdir(CT_FOLDER):
+
+        raise RuntimeError(
+            f"CT folder does not exist:\n{CT_FOLDER}"
+        )
+
+    if not os.path.isdir(MASK_FOLDER):
+
+        raise RuntimeError(
+            f"Mask folder does not exist:\n{MASK_FOLDER}"
+        )
+
+    print()
+    print("==========================================")
+    print("AI SEGMENTATION → RTSTRUCT")
+    print("==========================================")
+
+    print()
+    print("CT folder:")
+    print(CT_FOLDER)
+
+    print()
+    print("Mask folder:")
+    print(MASK_FOLDER)
+
     # --------------------------------------------------------
-    # Load CT geometry
+    # 1. Load ORIGINAL CT geometry
     # --------------------------------------------------------
 
-    ct_image = load_ct_series(
+    ct_img = load_ct_series(
         CT_FOLDER
     )
 
     # --------------------------------------------------------
-    # Create RTSTRUCT using original DICOM
+    # 2. Create RTSTRUCT using ORIGINAL CT series
     # --------------------------------------------------------
 
-    print("Creating RTSTRUCT from original CT...")
+    print()
+    print("Creating RTSTRUCT from original CT series...")
 
     rtstruct = RTStructBuilder.create_new(
         dicom_series_path=CT_FOLDER
     )
 
     # --------------------------------------------------------
-    # Prepare merged masks
+    # 3. Prepare merged masks
     # --------------------------------------------------------
 
     merged_masks = {
@@ -423,7 +594,7 @@ def main():
     }
 
     # --------------------------------------------------------
-    # Find masks
+    # 4. Find NIfTI masks
     # --------------------------------------------------------
 
     mask_files = sorted(
@@ -432,80 +603,132 @@ def main():
         if f.endswith(".nii.gz")
     )
 
+    print()
     print(
-        f"Found {len(mask_files)} mask(s)."
+        f"Found {len(mask_files)} NIfTI mask(s)."
     )
 
+    if not mask_files:
+
+        raise RuntimeError(
+            "No .nii.gz masks were found."
+        )
+
     # --------------------------------------------------------
-    # Process every mask
+    # 5. Process every mask
     # --------------------------------------------------------
 
     for filename in mask_files:
 
-        path = os.path.join(
+        mask_path = os.path.join(
             MASK_FOLDER,
             filename
         )
 
-        mask_name = filename.replace(
-            ".nii.gz",
-            ""
-        )
+        mask_name = filename[:-7]
 
-        print("")
-        print("--------------------------------")
+        print()
+        print("------------------------------------------")
         print(f"Processing: {mask_name}")
-        print("--------------------------------")
+        print("------------------------------------------")
 
         # ----------------------------------------------------
         # Read NIfTI
         # ----------------------------------------------------
 
-        nifti = sitk.ReadImage(path)
-
-        print(
-            f"NIfTI size:      {nifti.GetSize()}"
+        mask_img = sitk.ReadImage(
+            mask_path
         )
 
         print(
-            f"NIfTI spacing:   {nifti.GetSpacing()}"
+            "NIfTI size:      ",
+            mask_img.GetSize()
         )
 
         print(
-            f"NIfTI origin:    {nifti.GetOrigin()}"
+            "NIfTI spacing:   ",
+            mask_img.GetSpacing()
+        )
+
+        print(
+            "NIfTI origin:    ",
+            mask_img.GetOrigin()
         )
 
         # ----------------------------------------------------
-        # Resample to CT geometry
+        # Verify geometry
         # ----------------------------------------------------
 
-        nifti = resample_mask_to_ct(
-            nifti,
-            ct_image
+        matches = geometry_matches(
+            mask_img,
+            ct_img
+        )
+
+        if matches:
+
+            print(
+                "Geometry: EXACT MATCH"
+            )
+
+        else:
+
+            print(
+                "Geometry: MISMATCH"
+            )
+
+            mask_img = resample_mask_to_ct(
+                mask_img,
+                ct_img
+            )
+
+            # Verify again
+            if not geometry_matches(
+                mask_img,
+                ct_img
+            ):
+
+                raise RuntimeError(
+                    f"Failed to align mask '{mask_name}' "
+                    "to CT geometry."
+                )
+
+            print(
+                "Geometry: RESAMPLED TO CT GRID"
+            )
+
+        # ----------------------------------------------------
+        # Convert to RT-utils orientation
+        # ----------------------------------------------------
+
+        mask = sitk_mask_to_rtutils(
+            mask_img
         )
 
         # ----------------------------------------------------
-        # Convert to rt-utils orientation
+        # Validate
         # ----------------------------------------------------
 
-        mask = mask_to_rtutils_array(
-            nifti
+        roi_name = DISPLAY_NAMES.get(
+            mask_name,
+            mask_name
         )
 
-        # ----------------------------------------------------
-        # Empty mask?
-        # ----------------------------------------------------
+        mask = validate_mask(
+            mask,
+            ct_img,
+            roi_name
+        )
 
         if not np.any(mask):
 
             print(
-                f"Skipping empty mask: {mask_name}"
+                f"Skipping empty ROI: {roi_name}"
             )
 
             continue
 
         # ----------------------------------------------------
-        # Check whether this belongs to merged ROI
+        # Check whether this is a merged structure
         # ----------------------------------------------------
 
         merged = False
@@ -515,10 +738,13 @@ def main():
             if mask_name in members:
 
                 print(
-                    f"Merging {mask_name} -> {merged_name}"
+                    f"Adding mask to merged ROI: "
+                    f"{merged_name}"
                 )
 
-                if merged_masks[merged_name] is None:
+                if merged_masks[
+                    merged_name
+                ] is None:
 
                     merged_masks[
                         merged_name
@@ -535,21 +761,15 @@ def main():
                 break
 
         if merged:
-
             continue
 
         # ----------------------------------------------------
         # Normal ROI
         # ----------------------------------------------------
 
-        roi_name = DISPLAY_NAMES.get(
-            mask_name,
-            mask_name
-        )
-
         color = ROI_COLORS.get(
             roi_name,
-            [255,255,255]
+            [255, 255, 255]
         )
 
         print(
@@ -563,13 +783,13 @@ def main():
         )
 
     # --------------------------------------------------------
-    # Add merged ROIs
+    # 6. Add merged ROIs
     # --------------------------------------------------------
 
-    print("")
-    print("==============================")
+    print()
+    print("==========================================")
     print("Adding merged ROIs")
-    print("==============================")
+    print("==========================================")
 
     for roi_name, mask in merged_masks.items():
 
@@ -581,7 +801,7 @@ def main():
 
         color = ROI_COLORS.get(
             roi_name,
-            [255,255,255]
+            [255, 255, 255]
         )
 
         print(
@@ -595,32 +815,57 @@ def main():
         )
 
     # --------------------------------------------------------
-    # Save
+    # 7. Save
     # --------------------------------------------------------
 
-    print("")
-    print("==============================")
-    print("Saving RTSTRUCT...")
-    print("==============================")
+    print()
+    print("==========================================")
+    print("Saving RTSTRUCT")
+    print("==========================================")
+
+    print(
+        f"Output: {OUTPUT_FILE}"
+    )
 
     rtstruct.save(
         OUTPUT_FILE
     )
 
-    print("")
-    print("==============================")
-    print("DONE")
-    print("==============================")
+    print("Sanitizing DICOM contour coordinates...")
+
+    sanitize_rtstruct_contours(
+        OUTPUT_FILE
+    )
+    # --------------------------------------------------------
+    # 8. Final validation
+    # --------------------------------------------------------
+
+    if not os.path.exists(
+        OUTPUT_FILE
+    ):
+
+        raise RuntimeError(
+            "RTSTRUCT file was not created."
+        )
+
+    file_size = os.path.getsize(
+        OUTPUT_FILE
+    )
+
+    print()
+    print("==========================================")
+    print("SUCCESS")
+    print("==========================================")
+
+    print(
+        f"RTSTRUCT size: "
+        f"{file_size / 1024:.1f} KB"
+    )
 
     print(
         f"Saved to:\n{OUTPUT_FILE}"
     )
 
 
-# ============================================================
-# ENTRY POINT
-# ============================================================
-
 if __name__ == "__main__":
-
     main()
